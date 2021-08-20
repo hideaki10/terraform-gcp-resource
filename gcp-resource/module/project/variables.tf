@@ -3,11 +3,11 @@ variable "project_name" {
 }
 
 variable "project_id" {
-  description = "a project_id of the GCP Project"
+  description = "a project_id of The GCP Project"
 }
 
 variable "billing_account" {
-  description = "Billing account for the GCP project"
+  description = "Billing account for The GCP project"
 }
 
 
