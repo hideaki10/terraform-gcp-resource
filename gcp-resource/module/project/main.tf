@@ -1,10 +1,27 @@
-module "project-factory" {
 
-  source  = "terraform-google-modules/project-factory/google"
-  version = "11.1.1"
+resource "google_project" "project" {
+  name       = var.project_name
+  project_id = var.project_id
 
-  name              = var.project_name
-  org_id            = var.project_id
-  billing_account   = var.billing_account
-  random_project_id = billing_account == null ? true : false
+
+}
+
+
+resource "google_project_service" "gcp_api_service" {
+
+  project = google_project.project.project_id
+
+
+  for_each = toset(var.activate_apis)
+  service  = each.key
+
+  disable_on_destroy = false
+}
+
+resource "google_project_iam_member" "service_admins" {
+  for_each = toset(var.service_admins)
+
+  project = google_project.project.project_id
+  role    = "roles/editor"
+  member  = "user:${each.key}"
 }
