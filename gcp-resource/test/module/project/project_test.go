@@ -2,34 +2,37 @@ package test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/gruntwork-io/terratest/modules/gcp"
+	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 func TestProjectModule(t *testing.T) {
+	expectedName := fmt.Sprintf("test-%s", strings.ToLower(random.UniqueId()))
 	opts := &terraform.Options{
-		TerraformDir: "../../../module/project",
+		TerraformDir: "../../../module/project/example",
 
 		Vars: map[string]interface{}{
-			"project_name": "terraform-unit-test",
-			"project_id":   "terraform-unit-test-dev01",
-		},
 
-		Upgrade: true,
+			"gcp_project_name": expectedName,
+			"gcp_project_id":   expectedName + "-dev",
+		},
 	}
 
-	// terraform.Init(t, opts)
-	// terraform.Apply(t, opts)
-
-	//clearUp evething at end of the test
 	defer terraform.Destroy(t, opts)
 
 	//Deploy this example
-	terraform.InitAndApply(t, opts)
+	_ = terraform.InitAndApply(t, opts)
 
 	//Get project_id
-	projectId := terraform.OutputRequired(t, opts, "project_id")
+	got := terraform.OutputRequired(t, opts, "project_id")
 
-	fmt.Printf("The project id is %s", projectId)
+	if got != expectedName+"-dev" {
+		t.Errorf("got: %s, want: %s", got, expectedName+"-dev")
+	}
+
+	_ = gcp.GetBuilds(t, expectedName+"-dev")
 }
