@@ -4,6 +4,7 @@ output "project_id" {
 }
 
 output "project_name" {
-  description = "Name of The GCP project"
+  description = "name of The GCP project"
   value       = google_project.project.name
 }
+
